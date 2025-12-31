@@ -58,8 +58,6 @@ else
 fi
 
 SERVICE_ACCOUNT=$(gcloud sql instances describe ${CLOUD_SQL} --project=${PROJECT_ID} | grep 'serviceAccountEmailAddress' | awk '{print $2;}')
-# Note: Migrating scripts using gsutil iam ch is more complex than get or set. You need to replace the single iam ch command with a series of gcloud storage bucket add-iam-policy-binding and/or gcloud storage bucket remove-iam-policy-binding commands, or replicate the read-modify-write loop.
-# Note: gsutil iam ch does not support modifying IAM policies that contain conditions. gcloud storage commands do support conditions.
 gcloud storage buckets add-iam-policy-binding ${GCS_BUCKET} --member="serviceAccount:${SERVICE_ACCOUNT}" --role="objectViewer"
 
 # Create Pub/Sub Resources for GCS Notifications
