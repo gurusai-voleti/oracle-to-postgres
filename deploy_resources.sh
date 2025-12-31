@@ -29,7 +29,7 @@ gcloud services enable \
   --project=${PROJECT_ID}
 
 # Create GCS Bucket
-gsutil mb -p ${PROJECT_NUMBER} ${GCS_BUCKET}
+gcloud storage buckets create ${GCS_BUCKET} --project=${PROJECT_NUMBER}
 
 # Deploy CloudSQL Instance
 SQL_INSTANCE=$(gcloud sql instances list --project=${PROJECT_ID} | grep "${CLOUD_SQL}")
@@ -58,7 +58,9 @@ else
 fi
 
 SERVICE_ACCOUNT=$(gcloud sql instances describe ${CLOUD_SQL} --project=${PROJECT_ID} | grep 'serviceAccountEmailAddress' | awk '{print $2;}')
-gsutil iam ch serviceAccount:${SERVICE_ACCOUNT}:objectViewer ${GCS_BUCKET}
+# Note: Migrating scripts using gsutil iam ch is more complex than get or set. You need to replace the single iam ch command with a series of gcloud storage bucket add-iam-policy-binding and/or gcloud storage bucket remove-iam-policy-binding commands, or replicate the read-modify-write loop.
+# Note: gsutil iam ch does not support modifying IAM policies that contain conditions. gcloud storage commands do support conditions.
+gcloud storage buckets add-iam-policy-binding ${GCS_BUCKET} --member="serviceAccount:${SERVICE_ACCOUNT}" --role="objectViewer"
 
 # Create Pub/Sub Resources for GCS Notifications
 TOPIC_EXISTS=$(gcloud pubsub topics list --project=${PROJECT_ID} | grep ${PUBSUB_TOPIC})
@@ -70,5 +72,5 @@ then
   gcloud pubsub subscriptions create ${PUBSUB_SUBSCRIPTION} \
   --topic=${PUBSUB_TOPIC} --project=${PROJECT_ID}
 
-  gsutil notification create -f "json" -p "${DATASTREAM_ROOT_PATH}" -t "${PUBSUB_TOPIC}" "${GCS_BUCKET}"
+  gcloud storage buckets notifications create "${GCS_BUCKET}" --payload-format="json" --object-prefix="${DATASTREAM_ROOT_PATH}" --topic="${PUBSUB_TOPIC}"
 fi

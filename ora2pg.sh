@@ -79,8 +79,8 @@ then
 elif [ "$1" == "deploy" ]
 then
   # Deploy to GCS
-  gsutil rm ${GCS_BUCKET}/resources/ora2pg/*
-  gsutil cp ora2pg/data/output.sql ${GCS_BUCKET}/resources/ora2pg/output.sql
+  gcloud storage rm ${GCS_BUCKET}/resources/ora2pg/*
+  gcloud storage cp ora2pg/data/output.sql ${GCS_BUCKET}/resources/ora2pg/output.sql
 
   # Apply ora2pg results in CloudSQL
   gcloud sql import sql \

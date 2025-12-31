@@ -145,4 +145,4 @@ destroy-dataflow: variables
 
 destroy: variables destroy-dataflow destroy-datastream
 	@echo "Tearing Down DataStream to Postgres: ${PROJECT_ID}"
-	gsutil -m rm ${GCS_STREAM_PATH}**
+	gcloud storage rm ${GCS_STREAM_PATH}**

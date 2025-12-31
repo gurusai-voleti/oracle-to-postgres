@@ -82,7 +82,7 @@ To add private connectivity to Dataflow, please add the private networking confi
 #### Redeploying Data Replication
 
 To redeploy data replication you should first cancel the old Dataflow job. When you are ready to re-deploy, a rewrite to any Cloud Storage file will cause it to be consumed (and avoid the need to restart Datastream replication). Running the following rewrite command will read all files again once Dataflow is redeployed.
-`gsutil -m rewrite -r -k gs://bucket/path/to/data/`
+`gcloud storage objects update --recursive --clear-encryption-key gs://bucket/path/to/data/`
 
 ### Data Validation (make validate)
 
